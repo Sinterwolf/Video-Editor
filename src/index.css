@@ -1,0 +1,45 @@
+:root {
+  color-scheme: light dark;
+  font: 15px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+  --bg: #14141a;
+  --bg-elevated: #1c1c24;
+  --border: #2e2e38;
+  --text: #f2f2f5;
+  --text-dim: #9a98a6;
+  --accent: #7c5cff;
+  --accent-hover: #9377ff;
+  --danger: #ff5470;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f4f4f7;
+    --bg-elevated: #ffffff;
+    --border: #dcdce3;
+    --text: #16161d;
+    --text-dim: #66647a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}

@@ -1,0 +1,71 @@
+import { useRef, useState } from 'react';
+import { useEditorStore } from './store/editorStore';
+import { MediaElementContext } from './lib/mediaElementContext';
+import { MediaUploader } from './components/MediaUploader';
+import { PreviewStage } from './components/PreviewStage';
+import { FiltersPanel } from './components/FiltersPanel';
+import { CropPanel } from './components/CropPanel';
+import { TrimPanel } from './components/TrimPanel';
+import { OverlaysPanel } from './components/OverlaysPanel';
+import { ExportBar } from './components/ExportBar';
+import type { ToolTab } from './types';
+import './App.css';
+
+const TABS: { key: ToolTab; label: string }[] = [
+  { key: 'filters', label: 'Filters' },
+  { key: 'crop', label: 'Crop' },
+  { key: 'trim', label: 'Trim & Speed' },
+  { key: 'overlays', label: 'Text & Shapes' },
+];
+
+function App() {
+  const media = useEditorStore((s) => s.media);
+  const videoElRef = useRef<HTMLVideoElement | null>(null);
+  const [activeTool, setActiveTool] = useState<ToolTab>('filters');
+
+  return (
+    <MediaElementContext.Provider value={videoElRef}>
+      <div className="app">
+        <header className="app__header">
+          <h1>Video &amp; Photo Editor</h1>
+          <ExportBar />
+        </header>
+        <main className="app__main">
+          {!media ? (
+            <div className="app__empty">
+              <MediaUploader />
+            </div>
+          ) : (
+            <>
+              <div className="app__stage">
+                <PreviewStage activeTool={activeTool} />
+              </div>
+              <aside className="app__sidebar">
+                <div className="tool-tabs">
+                  {TABS.map((tab) => (
+                    <button
+                      key={tab.key}
+                      className={`tool-tab ${activeTool === tab.key ? 'tool-tab--active' : ''}`}
+                      onClick={() => setActiveTool(tab.key)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                {activeTool === 'filters' && <FiltersPanel />}
+                {activeTool === 'crop' && <CropPanel />}
+                {activeTool === 'trim' && <TrimPanel />}
+                {activeTool === 'overlays' && <OverlaysPanel />}
+                <div className="app__replace">
+                  <MediaUploader />
+                </div>
+              </aside>
+            </>
+          )}
+        </main>
+      </div>
+    </MediaElementContext.Provider>
+  );
+}
+
+export default App;
