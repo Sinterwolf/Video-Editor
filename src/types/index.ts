@@ -84,7 +84,16 @@ export interface TrimRange {
   end: number; // seconds
 }
 
-export type ToolTab = 'filters' | 'adjust' | 'crop' | 'speed' | 'overlays';
+export type EffectType =
+  | 'none'
+  | 'throb'
+  | 'whiplash'
+  | 'blink'
+  | 'slideLeft'
+  | 'slideRight'
+  | 'colorDistortion';
+
+export type ToolTab = 'filters' | 'adjust' | 'crop' | 'speed' | 'effects' | 'overlays';
 
 export type ExportState =
   | { status: 'idle' }

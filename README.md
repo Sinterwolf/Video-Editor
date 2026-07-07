@@ -18,6 +18,9 @@ export the result. Everything runs client-side — no upload to any server.
   below the preview for video, with a playhead and draggable in/out trim
   handles
 - **Speed**: adjust playback speed (0.25x–3x) for video
+- **Effects** (video only): Throb, Whiplash, Blink, Come in from the Left,
+  Come in from the Right, and Color Distortion (a glitchy RGB channel
+  split) — animated, repeating, time-based effects
 - **Text & shapes**: add draggable/resizable text captions, rectangles, and
   circles
 - **Export**: images as PNG/JPEG; video as WebM, re-rendered frame-by-frame
@@ -76,3 +79,5 @@ network-sandboxed CI/session).
 - Sharpen is approximated in the live video preview (CSS has no convolution
   filter) but is applied at full quality on export, since export re-renders
   every frame through a canvas pixel pipeline.
+- Color Distortion is likewise approximated (a cheap hue wobble) in the live
+  preview; export renders the real RGB channel-split glitch via canvas.

@@ -8,6 +8,7 @@ import { FiltersPanel } from './components/FiltersPanel';
 import { AdjustPanel } from './components/AdjustPanel';
 import { CropPanel } from './components/CropPanel';
 import { SpeedPanel } from './components/SpeedPanel';
+import { EffectsPanel } from './components/EffectsPanel';
 import { OverlaysPanel } from './components/OverlaysPanel';
 import { ExportBar } from './components/ExportBar';
 import type { ToolTab } from './types';
@@ -18,6 +19,7 @@ const TABS: { key: ToolTab; label: string }[] = [
   { key: 'adjust', label: 'Adjust' },
   { key: 'crop', label: 'Crop' },
   { key: 'speed', label: 'Speed' },
+  { key: 'effects', label: 'Effects' },
   { key: 'overlays', label: 'Text & Shapes' },
 ];
 
@@ -60,6 +62,7 @@ function App() {
                 {activeTool === 'adjust' && <AdjustPanel />}
                 {activeTool === 'crop' && <CropPanel />}
                 {activeTool === 'speed' && <SpeedPanel />}
+                {activeTool === 'effects' && <EffectsPanel />}
                 {activeTool === 'overlays' && <OverlaysPanel />}
                 <div className="app__replace">
                   <MediaUploader />

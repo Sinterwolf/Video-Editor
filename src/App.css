@@ -135,6 +135,14 @@
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 35%, rgba(0, 0, 0, 0.85) 100%);
 }
 
+.effect-flash-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: #fff;
+  opacity: 0;
+}
+
 /* Crop overlay */
 
 .crop-overlay {

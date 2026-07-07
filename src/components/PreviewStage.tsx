@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useEditorStore } from '../store/editorStore';
 import { renderFrame } from '../lib/render';
 import { buildFilterCss } from '../lib/filterCss';
+import { colorDistortionPreviewFilter, computeEffectTransform } from '../lib/effects';
 import { CropOverlay } from './CropOverlay';
 import { OverlayLayer } from './OverlayLayer';
 import { useMediaElementRef } from '../lib/mediaElementContext';
-import type { Adjustments, CropRect, MediaAsset, PresetFilter, ToolTab } from '../types';
+import type { Adjustments, CropRect, EffectType, MediaAsset, PresetFilter, ToolTab } from '../types';
 
 const FULL_CROP: CropRect = { x: 0, y: 0, width: 1, height: 1 };
 const MAX_PREVIEW_DIM = 1600;
@@ -20,6 +21,8 @@ export function PreviewStage({ activeTool }: Props) {
   const preset = useEditorStore((s) => s.preset);
   const vignette = useEditorStore((s) => s.vignette);
   const crop = useEditorStore((s) => s.crop);
+  const effect = useEditorStore((s) => s.effect);
+  const trim = useEditorStore((s) => s.trim);
 
   if (!media) return null;
 
@@ -51,6 +54,8 @@ export function PreviewStage({ activeTool }: Props) {
             preset={preset}
             vignette={vignette}
             crop={showFullFrame ? null : crop}
+            effect={effect}
+            trimStart={trim?.start ?? 0}
           />
         )}
         {activeTool === 'crop' && <CropOverlay />}
@@ -114,33 +119,65 @@ function ImageCanvas({ media, adjustments, preset, vignette, crop }: MediaLayerP
   return <canvas ref={canvasRef} className="preview-canvas" />;
 }
 
-function VideoStage({ media, adjustments, preset, vignette, crop }: MediaLayerProps) {
+function VideoStage({
+  media,
+  adjustments,
+  preset,
+  vignette,
+  crop,
+  effect,
+  trimStart,
+}: MediaLayerProps & { effect: EffectType; trimStart: number }) {
   const videoRef = useMediaElementRef();
+  const cropClipRef = useRef<HTMLDivElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null);
   const effectiveCrop = crop ?? FULL_CROP;
-  const filterCss = buildFilterCss(adjustments, preset);
 
   const scaleX = 1 / effectiveCrop.width;
   const scaleY = 1 / effectiveCrop.height;
   const leftPct = -(effectiveCrop.x / effectiveCrop.width) * 100;
   const topPct = -(effectiveCrop.y / effectiveCrop.height) * 100;
 
+  useEffect(() => {
+    let rafId = 0;
+    const loop = () => {
+      const video = videoRef.current;
+      const clip = cropClipRef.current;
+      if (video && clip) {
+        const t = Math.max(0, video.currentTime - trimStart);
+        const fx = computeEffectTransform(effect, t);
+        clip.style.transform = `translate(${fx.translateXFrac * 100}%, ${fx.translateYFrac * 100}%) scale(${fx.scale})`;
+        let filterStr = buildFilterCss(adjustments, preset);
+        if (fx.blurPx > 0) filterStr += ` blur(${fx.blurPx}px)`;
+        if (effect === 'colorDistortion') filterStr += ` ${colorDistortionPreviewFilter(t)}`;
+        video.style.filter = filterStr;
+        if (flashRef.current) flashRef.current.style.opacity = String(fx.flashAlpha);
+      }
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafId);
+  }, [effect, trimStart, adjustments, preset, videoRef]);
+
   return (
-    <div className="video-crop-clip">
-      <video
-        ref={videoRef}
-        src={media.url}
-        playsInline
-        style={{
-          width: `${scaleX * 100}%`,
-          height: `${scaleY * 100}%`,
-          left: `${leftPct}%`,
-          top: `${topPct}%`,
-          filter: filterCss,
-        }}
-      />
-      {vignette > 0 && (
-        <div className="vignette-overlay" style={{ opacity: vignette / 100 }} />
-      )}
-    </div>
+    <>
+      <div className="video-crop-clip" ref={cropClipRef}>
+        <video
+          ref={videoRef}
+          src={media.url}
+          playsInline
+          style={{
+            width: `${scaleX * 100}%`,
+            height: `${scaleY * 100}%`,
+            left: `${leftPct}%`,
+            top: `${topPct}%`,
+          }}
+        />
+        {vignette > 0 && (
+          <div className="vignette-overlay" style={{ opacity: vignette / 100 }} />
+        )}
+      </div>
+      <div className="effect-flash-overlay" ref={flashRef} />
+    </>
   );
 }

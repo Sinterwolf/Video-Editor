@@ -1,5 +1,5 @@
 import { renderFrame } from '../render';
-import type { Adjustments, CropRect, MediaAsset, Overlay, PresetFilter, TrimRange } from '../../types';
+import type { Adjustments, CropRect, EffectType, MediaAsset, Overlay, PresetFilter, TrimRange } from '../../types';
 
 export interface VideoExportParams {
   videoEl: HTMLVideoElement;
@@ -11,6 +11,7 @@ export interface VideoExportParams {
   overlays: Overlay[];
   trim: TrimRange | null;
   speed: number;
+  effect: EffectType;
   onProgress: (fraction: number) => void;
 }
 
@@ -43,7 +44,7 @@ function waitForSeek(video: HTMLVideoElement): Promise<void> {
 }
 
 export async function exportVideo(params: VideoExportParams): Promise<VideoExportResult> {
-  const { videoEl, media, crop, adjustments, preset, vignette, overlays, trim, speed, onProgress } = params;
+  const { videoEl, media, crop, adjustments, preset, vignette, overlays, trim, speed, effect, onProgress } = params;
   const effectiveCrop = crop ?? { x: 0, y: 0, width: 1, height: 1 };
   const effectiveTrim = trim ?? { start: 0, end: media.duration };
   const span = Math.max(0.01, effectiveTrim.end - effectiveTrim.start);
@@ -83,10 +84,11 @@ export async function exportVideo(params: VideoExportParams): Promise<VideoExpor
   await waitForSeek(videoEl);
 
   let rafId = 0;
-  const renderOpts = { naturalWidth: media.naturalWidth, naturalHeight: media.naturalHeight, crop, adjustments, preset, vignette, overlays };
+  const baseRenderOpts = { naturalWidth: media.naturalWidth, naturalHeight: media.naturalHeight, crop, adjustments, preset, vignette, overlays };
 
   const drawLoop = () => {
-    renderFrame(ctx, videoEl, renderOpts);
+    const effectTime = Math.max(0, videoEl.currentTime - effectiveTrim.start);
+    renderFrame(ctx, videoEl, { ...baseRenderOpts, effect, effectTime });
     const frac = (videoEl.currentTime - effectiveTrim.start) / span;
     onProgress(Math.min(1, Math.max(0, frac)));
     if (videoEl.currentTime < effectiveTrim.end && !videoEl.ended && recorder.state === 'recording') {

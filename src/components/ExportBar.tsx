@@ -24,6 +24,7 @@ export function ExportBar() {
   const overlays = useEditorStore((s) => s.overlays);
   const trim = useEditorStore((s) => s.trim);
   const speed = useEditorStore((s) => s.speed);
+  const effect = useEditorStore((s) => s.effect);
   const videoRef = useMediaElementRef();
 
   const [busy, setBusy] = useState(false);
@@ -69,6 +70,7 @@ export function ExportBar() {
         overlays,
         trim,
         speed,
+        effect,
         onProgress: setProgress,
       });
       downloadBlob(blob, `${baseName}-edited.webm`);

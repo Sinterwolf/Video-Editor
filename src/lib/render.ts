@@ -1,5 +1,6 @@
-import type { Adjustments, CropRect, Overlay, PresetFilter } from '../types';
+import type { Adjustments, CropRect, EffectType, Overlay, PresetFilter } from '../types';
 import { buildFilterCss } from './filterCss';
+import { computeColorDistortionOffsets, computeEffectTransform } from './effects';
 
 export interface RenderOptions {
   naturalWidth: number;
@@ -9,6 +10,8 @@ export interface RenderOptions {
   preset: PresetFilter;
   vignette: number;
   overlays: Overlay[];
+  effect?: EffectType;
+  effectTime?: number;
 }
 
 function effectiveCrop(crop: CropRect | null): CropRect {
@@ -24,6 +27,8 @@ export function renderFrame(
   opts: RenderOptions,
 ): void {
   const { naturalWidth, naturalHeight, adjustments, preset, vignette, overlays } = opts;
+  const effect = opts.effect ?? 'none';
+  const effectTime = opts.effectTime ?? 0;
   const crop = effectiveCrop(opts.crop);
   const outWidth = ctx.canvas.width;
   const outHeight = ctx.canvas.height;
@@ -33,15 +38,25 @@ export function renderFrame(
   const sw = crop.width * naturalWidth;
   const sh = crop.height * naturalHeight;
 
+  const fx = computeEffectTransform(effect, effectTime);
+
   ctx.save();
   ctx.clearRect(0, 0, outWidth, outHeight);
-  ctx.filter = buildFilterCss(adjustments, preset);
+  ctx.translate(outWidth / 2, outHeight / 2);
+  ctx.scale(fx.scale, fx.scale);
+  ctx.translate(fx.translateXFrac * outWidth, fx.translateYFrac * outHeight);
+  ctx.translate(-outWidth / 2, -outHeight / 2);
+  ctx.filter = fx.blurPx > 0 ? `${buildFilterCss(adjustments, preset)} blur(${fx.blurPx}px)` : buildFilterCss(adjustments, preset);
   ctx.drawImage(source, sx, sy, sw, sh, 0, 0, outWidth, outHeight);
   ctx.filter = 'none';
   ctx.restore();
 
   if (adjustments.sharpen > 0) {
     applySharpen(ctx, outWidth, outHeight, adjustments.sharpen / 100);
+  }
+
+  if (effect === 'colorDistortion') {
+    applyColorDistortion(ctx, outWidth, outHeight, effectTime);
   }
 
   if (vignette > 0) {
@@ -51,6 +66,46 @@ export function renderFrame(
   for (const overlay of overlays) {
     drawOverlay(ctx, overlay, crop, outWidth, outHeight);
   }
+
+  if (fx.flashAlpha > 0) {
+    ctx.save();
+    ctx.fillStyle = `rgba(255,255,255,${fx.flashAlpha})`;
+    ctx.fillRect(0, 0, outWidth, outHeight);
+    ctx.restore();
+  }
+}
+
+let scratchCanvas: HTMLCanvasElement | null = null;
+function getScratchCanvas(width: number, height: number): HTMLCanvasElement {
+  if (!scratchCanvas) scratchCanvas = document.createElement('canvas');
+  if (scratchCanvas.width !== width || scratchCanvas.height !== height) {
+    scratchCanvas.width = width;
+    scratchCanvas.height = height;
+  }
+  return scratchCanvas;
+}
+
+/** Glitchy RGB channel-split, implemented with SVG feColorMatrix filters
+ * (see the hidden <svg> in index.html) so red/blue channels can be isolated
+ * and screened back on top with a per-cycle jittered offset. */
+function applyColorDistortion(ctx: CanvasRenderingContext2D, width: number, height: number, t: number) {
+  const scratch = getScratchCanvas(width, height);
+  const sctx = scratch.getContext('2d');
+  if (!sctx) return;
+  sctx.clearRect(0, 0, width, height);
+  sctx.drawImage(ctx.canvas, 0, 0);
+
+  const offsets = computeColorDistortionOffsets(t, 0.02);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.filter = 'url(#effect-channel-red)';
+  ctx.drawImage(scratch, offsets.redX * width, offsets.redY * height);
+  ctx.filter = 'url(#effect-channel-blue)';
+  ctx.drawImage(scratch, offsets.blueX * width, offsets.blueY * height);
+  ctx.filter = 'none';
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.restore();
 }
 
 function applySharpen(ctx: CanvasRenderingContext2D, width: number, height: number, amount: number) {

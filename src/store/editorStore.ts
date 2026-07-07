@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type {
   Adjustments,
   CropRect,
+  EffectType,
   ExportState,
   MediaAsset,
   Overlay,
@@ -18,6 +19,7 @@ interface EditorState {
   crop: CropRect | null;
   trim: TrimRange | null;
   speed: number;
+  effect: EffectType;
   overlays: Overlay[];
   selectedOverlayId: string | null;
   exportState: ExportState;
@@ -30,6 +32,7 @@ interface EditorState {
   setCrop: (crop: CropRect | null) => void;
   setTrim: (trim: TrimRange | null) => void;
   setSpeed: (speed: number) => void;
+  setEffect: (effect: EffectType) => void;
   addOverlay: (overlay: Overlay) => void;
   updateOverlay: (id: string, patch: Partial<Overlay>) => void;
   removeOverlay: (id: string) => void;
@@ -44,6 +47,7 @@ const editsDefaults = {
   crop: null as CropRect | null,
   trim: null as TrimRange | null,
   speed: 1,
+  effect: 'none' as EffectType,
   overlays: [] as Overlay[],
   selectedOverlayId: null as string | null,
 };
@@ -63,6 +67,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   setCrop: (crop) => set({ crop }),
   setTrim: (trim) => set({ trim }),
   setSpeed: (speed) => set({ speed }),
+  setEffect: (effect) => set({ effect }),
 
   addOverlay: (overlay) =>
     set((s) => ({ overlays: [...s.overlays, overlay], selectedOverlayId: overlay.id })),
