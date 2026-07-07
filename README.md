@@ -7,12 +7,17 @@ export the result. Everything runs client-side — no upload to any server.
 ## Features
 
 - **Upload**: drag-and-drop or file picker, images and videos
-- **Filters**: brightness, contrast, saturation, exposure, hue, blur, sharpen,
-  plus one-click presets (grayscale, sepia, invert, vintage) and a vignette
+- **Filters**: a visual gallery with live thumbnail previews — Original,
+  Vivid, B&W, Noir, Warm, Cool, Fade, Cinematic, Dramatic, Golden, Sepia,
+  Vintage, Invert
+- **Adjust**: brightness, contrast, saturation, exposure, hue, blur, sharpen,
+  and a vignette, as a separate tab from the filter gallery
 - **Crop**: draggable crop box with free-form or fixed aspect ratios (1:1,
   16:9, 9:16, 4:3)
-- **Trim & speed**: set in/out points on the timeline and adjust playback
-  speed (0.25x–3x) for video
+- **Timeline**: an always-visible filmstrip (real thumbnails from the clip)
+  below the preview for video, with a playhead and draggable in/out trim
+  handles
+- **Speed**: adjust playback speed (0.25x–3x) for video
 - **Text & shapes**: add draggable/resizable text captions, rectangles, and
   circles
 - **Export**: images as PNG/JPEG; video as WebM, re-rendered frame-by-frame

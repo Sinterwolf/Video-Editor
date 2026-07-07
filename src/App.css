@@ -38,9 +38,7 @@
 .app__stage {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  flex-direction: column;
   min-width: 0;
   overflow: auto;
   background: repeating-conic-gradient(var(--bg) 0% 25%, var(--bg-elevated) 0% 50%) 50% / 24px 24px;
@@ -93,19 +91,21 @@
 /* Preview stage */
 
 .preview-stage {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   max-width: 100%;
-  max-height: 100%;
+  min-height: 0;
+  padding: 24px;
 }
 
 .preview-stage__box {
   position: relative;
   max-width: 100%;
-  max-height: 80vh;
+  max-height: 100%;
   width: auto;
-  height: 80vh;
+  height: 100%;
   container-type: size;
   background: #000;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
@@ -324,13 +324,20 @@
   background: var(--accent-hover);
 }
 
-/* Trim panel */
+/* Persistent filmstrip timeline */
 
-.trim-controls {
+.timeline-dock {
+  flex-shrink: 0;
+  padding: 12px 24px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+
+.timeline-controls {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .time-label {
@@ -348,6 +355,44 @@
   cursor: pointer;
 }
 
+.timeline-track--filmstrip {
+  height: 56px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.timeline-filmstrip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.timeline-filmstrip img {
+  height: 100%;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.timeline-dim {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.timeline-dim--left {
+  left: 0;
+}
+
+.timeline-dim--right {
+  right: 0;
+}
+
 .timeline-range {
   position: absolute;
   top: 0;
@@ -363,6 +408,7 @@
   width: 2px;
   background: #fff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  z-index: 2;
 }
 
 .timeline-handle {
@@ -374,6 +420,7 @@
   border-radius: 4px;
   transform: translateX(-50%);
   cursor: ew-resize;
+  z-index: 2;
 }
 
 /* Overlays panel */
@@ -444,4 +491,55 @@
 .export-error {
   color: var(--danger);
   font-size: 13px;
+}
+
+/* Filters gallery */
+
+.filter-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 76px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.filter-swatch__thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--border);
+  border: 2px solid transparent;
+  display: block;
+}
+
+.filter-swatch__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.filter-swatch--active .filter-swatch__thumb {
+  border-color: var(--accent);
+}
+
+.filter-swatch__label {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.filter-swatch--active .filter-swatch__label {
+  color: var(--text);
+  font-weight: 600;
 }

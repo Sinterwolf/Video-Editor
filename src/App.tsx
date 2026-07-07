@@ -3,9 +3,11 @@ import { useEditorStore } from './store/editorStore';
 import { MediaElementContext } from './lib/mediaElementContext';
 import { MediaUploader } from './components/MediaUploader';
 import { PreviewStage } from './components/PreviewStage';
+import { Timeline } from './components/Timeline';
 import { FiltersPanel } from './components/FiltersPanel';
+import { AdjustPanel } from './components/AdjustPanel';
 import { CropPanel } from './components/CropPanel';
-import { TrimPanel } from './components/TrimPanel';
+import { SpeedPanel } from './components/SpeedPanel';
 import { OverlaysPanel } from './components/OverlaysPanel';
 import { ExportBar } from './components/ExportBar';
 import type { ToolTab } from './types';
@@ -13,8 +15,9 @@ import './App.css';
 
 const TABS: { key: ToolTab; label: string }[] = [
   { key: 'filters', label: 'Filters' },
+  { key: 'adjust', label: 'Adjust' },
   { key: 'crop', label: 'Crop' },
-  { key: 'trim', label: 'Trim & Speed' },
+  { key: 'speed', label: 'Speed' },
   { key: 'overlays', label: 'Text & Shapes' },
 ];
 
@@ -39,6 +42,7 @@ function App() {
             <>
               <div className="app__stage">
                 <PreviewStage activeTool={activeTool} />
+                <Timeline />
               </div>
               <aside className="app__sidebar">
                 <div className="tool-tabs">
@@ -53,8 +57,9 @@ function App() {
                   ))}
                 </div>
                 {activeTool === 'filters' && <FiltersPanel />}
+                {activeTool === 'adjust' && <AdjustPanel />}
                 {activeTool === 'crop' && <CropPanel />}
-                {activeTool === 'trim' && <TrimPanel />}
+                {activeTool === 'speed' && <SpeedPanel />}
                 {activeTool === 'overlays' && <OverlaysPanel />}
                 <div className="app__replace">
                   <MediaUploader />

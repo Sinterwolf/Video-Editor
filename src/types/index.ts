@@ -29,7 +29,20 @@ export const DEFAULT_ADJUSTMENTS: Adjustments = {
   sharpen: 0,
 };
 
-export type PresetFilter = 'none' | 'grayscale' | 'sepia' | 'invert' | 'vintage';
+export type PresetFilter =
+  | 'none'
+  | 'vivid'
+  | 'grayscale'
+  | 'noir'
+  | 'warm'
+  | 'cool'
+  | 'fade'
+  | 'cinematic'
+  | 'dramatic'
+  | 'golden'
+  | 'sepia'
+  | 'vintage'
+  | 'invert';
 
 export interface CropRect {
   x: number; // normalized 0..1, top-left
@@ -71,7 +84,7 @@ export interface TrimRange {
   end: number; // seconds
 }
 
-export type ToolTab = 'filters' | 'crop' | 'trim' | 'overlays';
+export type ToolTab = 'filters' | 'adjust' | 'crop' | 'speed' | 'overlays';
 
 export type ExportState =
   | { status: 'idle' }

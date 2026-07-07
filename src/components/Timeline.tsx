@@ -2,22 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { useEditorStore } from '../store/editorStore';
 import { useMediaElementRef } from '../lib/mediaElementContext';
 import { clamp01 } from '../lib/pointerDrag';
+import { formatTime } from '../lib/time';
+import { generateVideoThumbnails } from '../lib/thumbnails';
 
-function formatTime(t: number) {
-  const m = Math.floor(t / 60);
-  const s = (t % 60).toFixed(1).padStart(4, '0');
-  return `${m}:${s}`;
-}
+const THUMB_COUNT = 12;
 
-export function TrimPanel() {
+export function Timeline() {
   const media = useEditorStore((s) => s.media);
   const trim = useEditorStore((s) => s.trim);
   const setTrim = useEditorStore((s) => s.setTrim);
-  const speed = useEditorStore((s) => s.speed);
-  const setSpeed = useEditorStore((s) => s.setSpeed);
   const videoRef = useMediaElementRef();
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [thumbs, setThumbs] = useState<string[]>([]);
   const trackRef = useRef<HTMLDivElement>(null);
 
   const duration = media?.duration ?? 0;
@@ -25,10 +22,18 @@ export function TrimPanel() {
   const pct = (v: number) => (duration > 0 ? (v / duration) * 100 : 0);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.playbackRate = speed;
-  }, [speed, videoRef]);
+    if (!media || media.kind !== 'video' || !media.duration) return;
+    let cancelled = false;
+    setThumbs([]);
+    generateVideoThumbnails(media.url, media.duration, THUMB_COUNT)
+      .then((result) => {
+        if (!cancelled) setThumbs(result);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [media]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -52,13 +57,7 @@ export function TrimPanel() {
     };
   }, [videoRef, effectiveTrim.end]);
 
-  if (!media || media.kind !== 'video') {
-    return (
-      <div className="panel">
-        <p className="hint">Trim & speed controls apply to video only.</p>
-      </div>
-    );
-  }
+  if (!media || media.kind !== 'video') return null;
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -113,9 +112,8 @@ export function TrimPanel() {
   };
 
   return (
-    <div className="panel">
-      <h3>Playback</h3>
-      <div className="trim-controls">
+    <div className="timeline-dock">
+      <div className="timeline-controls">
         <button className="btn" onClick={togglePlay}>
           {isPlaying ? 'Pause' : 'Play'}
         </button>
@@ -123,12 +121,16 @@ export function TrimPanel() {
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
       </div>
-
-      <h3>Trim</h3>
-      <div className="timeline-track" ref={trackRef} onClick={onTrackClick}>
+      <div className="timeline-track timeline-track--filmstrip" ref={trackRef} onClick={onTrackClick}>
+        <div className="timeline-filmstrip">
+          {thumbs.map((src, i) => (
+            <img key={i} src={src} alt="" draggable={false} />
+          ))}
+        </div>
+        <div className="timeline-dim timeline-dim--left" style={{ width: `${pct(effectiveTrim.start)}%` }} />
         <div
-          className="timeline-range"
-          style={{ left: `${pct(effectiveTrim.start)}%`, width: `${pct(effectiveTrim.end - effectiveTrim.start)}%` }}
+          className="timeline-dim timeline-dim--right"
+          style={{ width: `${100 - pct(effectiveTrim.end)}%` }}
         />
         <div className="timeline-playhead" style={{ left: `${pct(currentTime)}%` }} />
         <div
@@ -141,22 +143,6 @@ export function TrimPanel() {
           style={{ left: `${pct(effectiveTrim.end)}%` }}
           onPointerDown={startHandleDrag('end')}
         />
-      </div>
-      <p className="hint">Trimmed length: {formatTime(effectiveTrim.end - effectiveTrim.start)}</p>
-
-      <h3>Speed</h3>
-      <div className="slider-row">
-        <label htmlFor="speed">Playback speed</label>
-        <input
-          id="speed"
-          type="range"
-          min={0.25}
-          max={3}
-          step={0.05}
-          value={speed}
-          onChange={(e) => setSpeed(Number(e.target.value))}
-        />
-        <span className="slider-value">{speed.toFixed(2)}x</span>
       </div>
     </div>
   );
