@@ -91,7 +91,24 @@ export type EffectType =
   | 'blink'
   | 'slideLeft'
   | 'slideRight'
-  | 'colorDistortion';
+  | 'colorDistortion'
+  | 'dollyBack'
+  | 'tremorStrobe'
+  | 'flash2'
+  | 'backToFocus'
+  | 'shockShift'
+  | 'thunderbolt'
+  | 'liquidFlip'
+  | 'curvyBlur'
+  | 'slideBlur'
+  | 'squareBlur'
+  | 'twistedFocus'
+  | 'garbledGrid'
+  | 'datamosh'
+  | 'faultFreeze'
+  | 'oldFootage'
+  | 'superGrain'
+  | 'smartSharpen';
 
 export type ToolTab = 'filters' | 'adjust' | 'crop' | 'speed' | 'effects' | 'overlays';
 

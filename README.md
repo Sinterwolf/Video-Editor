@@ -18,9 +18,12 @@ export the result. Everything runs client-side — no upload to any server.
   below the preview for video, with a playhead and draggable in/out trim
   handles
 - **Speed**: adjust playback speed (0.25x–3x) for video
-- **Effects** (video only): Throb, Whiplash, Blink, Come in from the Left,
-  Come in from the Right, and Color Distortion (a glitchy RGB channel
-  split) — animated, repeating, time-based effects
+- **Effects** (video only): 24 animated, repeating, time-based effects
+  grouped into Motion (Throb, Whiplash, Dolly Back, Tremor Strobe, Shock
+  Shift, Come in from the Left/Right), Flash (Blink, Flash 2, Thunderbolt),
+  Blur & Focus (Back to Focus, Curvy Blur, Slide Blur, Square Blur, Twisted
+  Focus, Smart Sharpen), Glitch (Color Distortion, Garbled Grid, Datamosh,
+  Fault Freeze, Liquid Flip), and Film (Old Footage, Super Grain)
 - **Text & shapes**: add draggable/resizable text captions, rectangles, and
   circles
 - **Export**: images as PNG/JPEG; video as WebM, re-rendered frame-by-frame
@@ -76,8 +79,8 @@ network-sandboxed CI/session).
 - Video export uses `MediaRecorder`, so the exported container is WebM
   (VP9/Opus) — the most broadly supported option across browsers without
   extra dependencies.
-- Sharpen is approximated in the live video preview (CSS has no convolution
-  filter) but is applied at full quality on export, since export re-renders
-  every frame through a canvas pixel pipeline.
-- Color Distortion is likewise approximated (a cheap hue wobble) in the live
-  preview; export renders the real RGB channel-split glitch via canvas.
+- Whenever an effect is selected, the video preview switches from playing
+  the raw file to rendering every frame through the same canvas pipeline
+  used for export (crop, filters, the effect, vignette), so what you see
+  while editing always matches the exported file exactly. With no effect
+  selected, video plays back natively for the smoothest possible preview.

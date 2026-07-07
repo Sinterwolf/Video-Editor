@@ -1,0 +1,55 @@
+import { MediaUploader } from './MediaUploader';
+
+const FEATURES = [
+  {
+    title: 'Filters & Adjust',
+    description: '13 visual presets with live thumbnail previews, plus fine-grained brightness, contrast, hue, and sharpen sliders.',
+  },
+  {
+    title: 'Effects',
+    description: 'Throb, glitch, freeze-frame, swirl, film grain, and more — animated effects baked straight into your export.',
+  },
+  {
+    title: 'Crop & Timeline',
+    description: 'Freeform or fixed aspect ratios, with a filmstrip timeline for scrubbing and trimming video.',
+  },
+  {
+    title: 'Text & Shapes',
+    description: 'Draggable, resizable captions, rectangles, and circles layered on top of your media.',
+  },
+  {
+    title: 'Speed control',
+    description: 'Slow your footage down or speed it up from 0.25x to 3x.',
+  },
+  {
+    title: 'Export',
+    description: 'PNG/JPEG for images, WebM for video — rendered pixel-for-pixel to match the live preview.',
+  },
+];
+
+export function Homepage() {
+  return (
+    <div className="homepage">
+      <div className="homepage__hero">
+        <h1 className="homepage__title">Video &amp; Photo Editor</h1>
+        <p className="homepage__tagline">
+          Filters, effects, crop, trim, and overlays — entirely in your browser.
+          Nothing you upload ever leaves your device.
+        </p>
+      </div>
+
+      <div className="homepage__uploader">
+        <MediaUploader />
+      </div>
+
+      <div className="homepage__features">
+        {FEATURES.map((f) => (
+          <div className="feature-card" key={f.title}>
+            <h3>{f.title}</h3>
+            <p>{f.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

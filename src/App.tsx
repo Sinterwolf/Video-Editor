@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useEditorStore } from './store/editorStore';
 import { MediaElementContext } from './lib/mediaElementContext';
 import { MediaUploader } from './components/MediaUploader';
+import { Homepage } from './components/Homepage';
 import { PreviewStage } from './components/PreviewStage';
 import { Timeline } from './components/Timeline';
 import { FiltersPanel } from './components/FiltersPanel';
@@ -31,15 +32,15 @@ function App() {
   return (
     <MediaElementContext.Provider value={videoElRef}>
       <div className="app">
-        <header className="app__header">
-          <h1>Video &amp; Photo Editor</h1>
-          <ExportBar />
-        </header>
-        <main className="app__main">
+        {media && (
+          <header className="app__header">
+            <h1>Video &amp; Photo Editor</h1>
+            <ExportBar />
+          </header>
+        )}
+        <main className={`app__main ${!media ? 'app__main--home' : ''}`}>
           {!media ? (
-            <div className="app__empty">
-              <MediaUploader />
-            </div>
+            <Homepage />
           ) : (
             <>
               <div className="app__stage">
