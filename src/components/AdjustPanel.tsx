@@ -1,4 +1,4 @@
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip, useEditorStore } from '../store/editorStore';
 import type { Adjustments } from '../types';
 
 const SLIDERS: { key: keyof Adjustments; label: string; min: number; max: number }[] = [
@@ -12,11 +12,14 @@ const SLIDERS: { key: keyof Adjustments; label: string; min: number; max: number
 ];
 
 export function AdjustPanel() {
-  const adjustments = useEditorStore((s) => s.adjustments);
+  const clip = useActiveClip();
+  const adjustments = clip?.adjustments ?? null;
   const setAdjustment = useEditorStore((s) => s.setAdjustment);
-  const vignette = useEditorStore((s) => s.vignette);
+  const vignette = clip?.vignette ?? 0;
   const setVignette = useEditorStore((s) => s.setVignette);
-  const mediaKind = useEditorStore((s) => s.media?.kind);
+  const mediaKind = clip?.media.kind;
+
+  if (!adjustments) return null;
 
   return (
     <div className="panel">

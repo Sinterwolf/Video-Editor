@@ -110,7 +110,32 @@ export type EffectType =
   | 'superGrain'
   | 'smartSharpen';
 
-export type ToolTab = 'filters' | 'adjust' | 'crop' | 'speed' | 'effects' | 'overlays';
+export type ToolTab = 'filters' | 'adjust' | 'crop' | 'speed' | 'effects' | 'overlays' | 'music';
+
+export const DEFAULT_IMAGE_DURATION = 3; // seconds an image clip occupies in the sequence
+
+export interface Clip {
+  id: string;
+  media: MediaAsset;
+  imageDuration: number; // used only when media.kind === 'image'
+  adjustments: Adjustments;
+  preset: PresetFilter;
+  vignette: number;
+  crop: CropRect | null;
+  trim: TrimRange | null; // used only when media.kind === 'video'
+  speed: number;
+  effect: EffectType;
+  overlays: Overlay[];
+}
+
+export interface MusicTrack {
+  url: string;
+  name: string;
+  duration: number;
+  volume: number; // 0..1
+  trim: TrimRange | null;
+  offset: number; // seconds into the sequence where the music starts
+}
 
 export type ExportState =
   | { status: 'idle' }

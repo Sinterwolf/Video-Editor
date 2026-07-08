@@ -1,4 +1,4 @@
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip, useEditorStore } from '../store/editorStore';
 import type { ShapeOverlay, TextOverlay } from '../types';
 
 function newId() {
@@ -6,7 +6,7 @@ function newId() {
 }
 
 export function OverlaysPanel() {
-  const overlays = useEditorStore((s) => s.overlays);
+  const overlays = useActiveClip()?.overlays ?? [];
   const addOverlay = useEditorStore((s) => s.addOverlay);
   const updateOverlay = useEditorStore((s) => s.updateOverlay);
   const removeOverlay = useEditorStore((s) => s.removeOverlay);

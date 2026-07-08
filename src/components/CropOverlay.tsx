@@ -1,4 +1,4 @@
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip, useEditorStore } from '../store/editorStore';
 import { clamp01, trackPointerDrag } from '../lib/pointerDrag';
 import type { CropRect } from '../types';
 
@@ -7,7 +7,7 @@ const CORNERS = ['nw', 'ne', 'sw', 'se'] as const;
 type Corner = (typeof CORNERS)[number];
 
 export function CropOverlay() {
-  const crop = useEditorStore((s) => s.crop) ?? { x: 0, y: 0, width: 1, height: 1 };
+  const crop = useActiveClip()?.crop ?? { x: 0, y: 0, width: 1, height: 1 };
   const setCrop = useEditorStore((s) => s.setCrop);
 
   const startMove = (e: React.PointerEvent) => {

@@ -1,4 +1,4 @@
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip, useEditorStore } from '../store/editorStore';
 import type { EffectType } from '../types';
 
 interface EffectDef {
@@ -59,8 +59,9 @@ const GROUPS: { title: string; effects: EffectDef[] }[] = [
 ];
 
 export function EffectsPanel() {
-  const media = useEditorStore((s) => s.media);
-  const effect = useEditorStore((s) => s.effect);
+  const clip = useActiveClip();
+  const media = clip?.media ?? null;
+  const effect = clip?.effect ?? 'none';
   const setEffect = useEditorStore((s) => s.setEffect);
 
   if (!media || media.kind !== 'video') {

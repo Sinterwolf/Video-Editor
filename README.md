@@ -1,11 +1,20 @@
 # Video & Photo Editor
 
-A browser-based editor for images and video: upload a file, apply filters and
-adjustments, crop, trim/speed up video, add text and shape overlays, and
-export the result. Everything runs client-side — no upload to any server.
+A browser-based multi-clip editor for images and video: upload several
+clips, arrange them on a timeline, apply filters and adjustments, crop,
+trim/speed each one, add text/shape overlays and a music track, and export
+the whole sequence as one video. Everything runs client-side — no upload to
+any server.
 
 ## Features
 
+- **Multi-clip timeline**: upload several images/videos at once (or add
+  more later), arrange them in sequence, reorder or remove any clip, and
+  export them all as a single combined video — each clip keeps its own
+  filters, crop, trim, speed, effect, and overlays
+- **Music**: upload an audio file as a soundtrack for the whole sequence,
+  with volume, trim, and start-offset controls (see the note below on
+  where to source royalty-free tracks)
 - **Upload**: drag-and-drop or file picker, images and videos
 - **Filters**: a visual gallery with live thumbnail previews — Original,
   Vivid, B&W, Noir, Warm, Cool, Fade, Cinematic, Dramatic, Golden, Sepia,
@@ -14,10 +23,11 @@ export the result. Everything runs client-side — no upload to any server.
   and a vignette, as a separate tab from the filter gallery
 - **Crop**: draggable crop box with free-form or fixed aspect ratios (1:1,
   16:9, 9:16, 4:3)
-- **Timeline**: an always-visible filmstrip (real thumbnails from the clip)
-  below the preview for video, with a playhead and draggable in/out trim
-  handles
-- **Speed**: adjust playback speed (0.25x–3x) for video
+- **Timeline**: an always-visible filmstrip (real thumbnails per clip)
+  below the preview, with a sequence-wide playhead and draggable in/out
+  trim handles per clip
+- **Speed**: adjust playback speed (0.25x–3x) for video; images have an
+  adjustable on-screen duration instead
 - **Effects** (video only): 24 animated, repeating, time-based effects
   grouped into Motion (Throb, Whiplash, Dolly Back, Tremor Strobe, Shock
   Shift, Come in from the Left/Right), Flash (Blink, Flash 2, Thunderbolt),
@@ -26,9 +36,11 @@ export the result. Everything runs client-side — no upload to any server.
   Fault Freeze, Liquid Flip), and Film (Old Footage, Super Grain)
 - **Text & shapes**: add draggable/resizable text captions, rectangles, and
   circles
-- **Export**: images as PNG/JPEG; video as WebM, re-rendered frame-by-frame
-  through the same pipeline used for the live preview, so the export always
-  matches what you see
+- **Export**: a single image clip exports as PNG/JPEG; anything else
+  (multiple clips, or one video clip) exports as one combined WebM video,
+  re-rendered frame-by-frame through the same pipeline used for the live
+  preview, with each video clip's own audio and the music track mixed
+  together
 
 ## Running it
 
@@ -79,6 +91,14 @@ network-sandboxed CI/session).
 - Video export uses `MediaRecorder`, so the exported container is WebM
   (VP9/Opus) — the most broadly supported option across browsers without
   extra dependencies.
+- The combined export's resolution is taken from the first clip; other
+  clips are letterboxed (scaled to fit, centered, no distortion) into that
+  frame rather than stretched.
+- Music import is upload-only. Downloading audio from YouTube videos
+  isn't supported, since that violates YouTube's terms — for royalty-free
+  tracks, use YouTube's own [Audio Library](https://www.youtube.com/audiolibrary),
+  which explicitly allows downloading tracks to reuse, then upload the
+  file here.
 - Whenever an effect is selected, the video preview switches from playing
   the raw file to rendering every frame through the same canvas pipeline
   used for export (crop, filters, the effect, vignette), so what you see

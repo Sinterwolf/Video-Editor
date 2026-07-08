@@ -411,28 +411,56 @@
   font-variant-numeric: tabular-nums;
 }
 
-.timeline-track {
+.clip-strip {
   position: relative;
-  height: 36px;
-  background: var(--border);
-  border-radius: 6px;
-  margin-bottom: 8px;
-  cursor: pointer;
+  display: flex;
+  gap: 4px;
+  min-height: 64px;
 }
 
-.timeline-track--filmstrip {
+.clip-strip__playhead {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.clip-strip__add {
+  flex: 0 0 auto;
+  width: 110px;
+}
+
+.clip-strip__add .uploader--compact {
+  height: 100%;
+  min-width: 0;
+}
+
+.clip-block {
+  position: relative;
   height: 56px;
-  overflow: hidden;
+  min-width: 90px;
   border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  background: var(--border);
 }
 
-.timeline-filmstrip {
+.clip-block--active {
+  border-color: var(--accent);
+}
+
+.clip-block__thumbs {
   position: absolute;
   inset: 0;
   display: flex;
 }
 
-.timeline-filmstrip img {
+.clip-block__thumbs img {
   height: 100%;
   flex: 1 1 0;
   min-width: 0;
@@ -440,6 +468,66 @@
   object-fit: cover;
   display: block;
   pointer-events: none;
+}
+
+.clip-block__label {
+  position: absolute;
+  left: 4px;
+  bottom: 2px;
+  font-size: 10px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  max-width: calc(100% - 8px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.clip-block__controls {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.clip-block:hover .clip-block__controls,
+.clip-block--active .clip-block__controls {
+  opacity: 1;
+}
+
+.clip-block__ctrl {
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+  border: none;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+
+.clip-block__ctrl:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.clip-block__ctrl--remove {
+  background: var(--danger);
+}
+
+.timeline-track {
+  position: relative;
+  height: 32px;
+  background: var(--border);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
 }
 
 .timeline-dim {
@@ -456,24 +544,6 @@
 
 .timeline-dim--right {
   right: 0;
-}
-
-.timeline-range {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: color-mix(in srgb, var(--accent) 35%, transparent);
-  border-radius: 6px;
-}
-
-.timeline-playhead {
-  position: absolute;
-  top: -2px;
-  bottom: -2px;
-  width: 2px;
-  background: #fff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
-  z-index: 2;
 }
 
 .timeline-handle {

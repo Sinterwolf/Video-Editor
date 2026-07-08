@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip, useEditorStore } from '../store/editorStore';
 import { buildFilterCss } from '../lib/filterCss';
 import { getMediaThumbnail } from '../lib/thumbnails';
 import { DEFAULT_ADJUSTMENTS } from '../types';
@@ -22,9 +22,10 @@ const PRESETS: { key: PresetFilter; label: string }[] = [
 ];
 
 export function FiltersPanel() {
-  const preset = useEditorStore((s) => s.preset);
+  const clip = useActiveClip();
+  const preset = clip?.preset ?? 'none';
   const setPreset = useEditorStore((s) => s.setPreset);
-  const media = useEditorStore((s) => s.media);
+  const media = clip?.media ?? null;
   const [thumb, setThumb] = useState<string | null>(null);
 
   useEffect(() => {

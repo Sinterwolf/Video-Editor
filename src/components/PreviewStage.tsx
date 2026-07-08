@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip } from '../store/editorStore';
 import { renderFrame } from '../lib/render';
 import { buildFilterCss } from '../lib/filterCss';
 import { CropOverlay } from './CropOverlay';
@@ -15,16 +15,11 @@ interface Props {
 }
 
 export function PreviewStage({ activeTool }: Props) {
-  const media = useEditorStore((s) => s.media);
-  const adjustments = useEditorStore((s) => s.adjustments);
-  const preset = useEditorStore((s) => s.preset);
-  const vignette = useEditorStore((s) => s.vignette);
-  const crop = useEditorStore((s) => s.crop);
-  const effect = useEditorStore((s) => s.effect);
-  const trim = useEditorStore((s) => s.trim);
+  const clip = useActiveClip();
 
-  if (!media) return null;
+  if (!clip) return null;
 
+  const { media, adjustments, preset, vignette, crop, effect, trim } = clip;
   const showFullFrame = activeTool === 'crop';
   const effectiveCrop = crop ?? FULL_CROP;
   const viewCrop = showFullFrame ? FULL_CROP : effectiveCrop;
@@ -40,6 +35,7 @@ export function PreviewStage({ activeTool }: Props) {
       >
         {media.kind === 'image' ? (
           <ImageCanvas
+            key={clip.id}
             media={media}
             adjustments={adjustments}
             preset={preset}
@@ -48,6 +44,7 @@ export function PreviewStage({ activeTool }: Props) {
           />
         ) : (
           <VideoStage
+            key={clip.id}
             media={media}
             adjustments={adjustments}
             preset={preset}
@@ -76,7 +73,6 @@ function ImageCanvas({ media, adjustments, preset, vignette, crop }: MediaLayerP
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgElRef = useRef<HTMLImageElement | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const overlays = useEditorStore((s) => s.overlays);
 
   useEffect(() => {
     setLoaded(false);
@@ -113,7 +109,7 @@ function ImageCanvas({ media, adjustments, preset, vignette, crop }: MediaLayerP
       vignette,
       overlays: [],
     });
-  }, [loaded, media, adjustments, preset, vignette, crop, overlays]);
+  }, [loaded, media, adjustments, preset, vignette, crop]);
 
   return <canvas ref={canvasRef} className="preview-canvas" />;
 }

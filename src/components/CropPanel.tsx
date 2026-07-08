@@ -1,4 +1,4 @@
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip, useEditorStore } from '../store/editorStore';
 
 const ASPECTS: { label: string; ratio: number | null }[] = [
   { label: 'Free', ratio: null },
@@ -9,8 +9,9 @@ const ASPECTS: { label: string; ratio: number | null }[] = [
 ];
 
 export function CropPanel() {
-  const media = useEditorStore((s) => s.media);
-  const crop = useEditorStore((s) => s.crop);
+  const clip = useActiveClip();
+  const media = clip?.media ?? null;
+  const crop = clip?.crop ?? null;
   const setCrop = useEditorStore((s) => s.setCrop);
 
   if (!media) return null;

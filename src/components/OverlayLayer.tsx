@@ -1,4 +1,4 @@
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip, useEditorStore } from '../store/editorStore';
 import { clamp01, trackPointerDrag } from '../lib/pointerDrag';
 import type { CropRect, Overlay } from '../types';
 
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function OverlayLayer({ interactive, viewCrop }: Props) {
-  const overlays = useEditorStore((s) => s.overlays);
+  const overlays = useActiveClip()?.overlays ?? [];
   const selectedId = useEditorStore((s) => s.selectedOverlayId);
   const updateOverlay = useEditorStore((s) => s.updateOverlay);
   const selectOverlay = useEditorStore((s) => s.selectOverlay);

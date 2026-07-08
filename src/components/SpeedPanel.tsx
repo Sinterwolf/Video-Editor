@@ -1,14 +1,17 @@
 import { useEffect } from 'react';
-import { useEditorStore } from '../store/editorStore';
+import { useActiveClip, useEditorStore } from '../store/editorStore';
 import { useMediaElementRef } from '../lib/mediaElementContext';
 import { formatTime } from '../lib/time';
 
 export function SpeedPanel() {
-  const media = useEditorStore((s) => s.media);
-  const speed = useEditorStore((s) => s.speed);
+  const clip = useActiveClip();
+  const media = clip?.media ?? null;
+  const speed = clip?.speed ?? 1;
   const setSpeed = useEditorStore((s) => s.setSpeed);
-  const trim = useEditorStore((s) => s.trim);
+  const trim = clip?.trim ?? null;
   const setTrim = useEditorStore((s) => s.setTrim);
+  const imageDuration = clip?.imageDuration ?? 3;
+  const setImageDuration = useEditorStore((s) => s.setImageDuration);
   const videoRef = useMediaElementRef();
 
   useEffect(() => {
@@ -16,10 +19,26 @@ export function SpeedPanel() {
     if (video) video.playbackRate = speed;
   }, [speed, videoRef]);
 
-  if (!media || media.kind !== 'video') {
+  if (!media) return null;
+
+  if (media.kind === 'image') {
     return (
       <div className="panel">
-        <p className="hint">Speed and trim apply to video only.</p>
+        <h3>Duration</h3>
+        <div className="slider-row">
+          <label htmlFor="imageDuration">Seconds shown</label>
+          <input
+            id="imageDuration"
+            type="range"
+            min={0.5}
+            max={15}
+            step={0.5}
+            value={imageDuration}
+            onChange={(e) => setImageDuration(Number(e.target.value))}
+          />
+          <span className="slider-value">{imageDuration.toFixed(1)}s</span>
+        </div>
+        <p className="hint">How long this image stays on screen in the sequence.</p>
       </div>
     );
   }

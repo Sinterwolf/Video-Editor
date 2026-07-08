@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useEditorStore } from '../store/editorStore';
 import { useMediaElementRef } from '../lib/mediaElementContext';
+import { useAudioElementRef } from '../lib/audioElementContext';
 import { exportImage } from '../lib/export/imageExport';
-import { exportVideo } from '../lib/export/videoExport';
+import { exportSequence } from '../lib/export/sequenceExport';
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -16,31 +17,35 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export function ExportBar() {
-  const media = useEditorStore((s) => s.media);
-  const adjustments = useEditorStore((s) => s.adjustments);
-  const preset = useEditorStore((s) => s.preset);
-  const vignette = useEditorStore((s) => s.vignette);
-  const crop = useEditorStore((s) => s.crop);
-  const overlays = useEditorStore((s) => s.overlays);
-  const trim = useEditorStore((s) => s.trim);
-  const speed = useEditorStore((s) => s.speed);
-  const effect = useEditorStore((s) => s.effect);
+  const clips = useEditorStore((s) => s.clips);
+  const music = useEditorStore((s) => s.music);
   const videoRef = useMediaElementRef();
+  const audioRef = useAudioElementRef();
 
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [imageFormat, setImageFormat] = useState<'image/png' | 'image/jpeg'>('image/png');
 
-  if (!media) return null;
+  if (clips.length === 0) return null;
 
-  const baseName = media.name.replace(/\.[^.]+$/, '') || 'export';
+  const singleImage = clips.length === 1 && clips[0].media.kind === 'image' ? clips[0] : null;
+  const baseName = (singleImage ? singleImage.media.name : 'sequence').replace(/\.[^.]+$/, '') || 'export';
 
   const handleExportImage = async () => {
+    if (!singleImage) return;
     setBusy(true);
     setError(null);
     try {
-      const blob = await exportImage({ media, adjustments, preset, vignette, crop, overlays, format: imageFormat });
+      const blob = await exportImage({
+        media: singleImage.media,
+        adjustments: singleImage.adjustments,
+        preset: singleImage.preset,
+        vignette: singleImage.vignette,
+        crop: singleImage.crop,
+        overlays: singleImage.overlays,
+        format: imageFormat,
+      });
       const ext = imageFormat === 'image/png' ? 'png' : 'jpg';
       downloadBlob(blob, `${baseName}-edited.${ext}`);
     } catch (e) {
@@ -50,27 +55,21 @@ export function ExportBar() {
     }
   };
 
-  const handleExportVideo = async () => {
+  const handleExportSequence = async () => {
     const videoEl = videoRef.current;
     if (!videoEl) {
-      setError('Video preview is not ready yet.');
+      setError('Preview is not ready yet.');
       return;
     }
     setBusy(true);
     setError(null);
     setProgress(0);
     try {
-      const { blob } = await exportVideo({
+      const { blob } = await exportSequence({
+        clips,
+        music,
         videoEl,
-        media,
-        adjustments,
-        preset,
-        vignette,
-        crop,
-        overlays,
-        trim,
-        speed,
-        effect,
+        audioEl: audioRef.current,
         onProgress: setProgress,
       });
       downloadBlob(blob, `${baseName}-edited.webm`);
@@ -78,12 +77,21 @@ export function ExportBar() {
       setError(e instanceof Error ? e.message : 'Export failed.');
     } finally {
       setBusy(false);
+      // The export loop repoints the shared <video> at each clip in turn;
+      // restore it to whatever the user currently has selected for editing.
+      const { clips: latestClips, activeClipId } = useEditorStore.getState();
+      const activeClip = latestClips.find((c) => c.id === activeClipId);
+      const video = videoRef.current;
+      if (video && activeClip && activeClip.media.kind === 'video') {
+        video.src = activeClip.media.url;
+        video.currentTime = activeClip.trim?.start ?? 0;
+      }
     }
   };
 
   return (
     <div className="export-bar">
-      {media.kind === 'image' ? (
+      {singleImage ? (
         <>
           <select
             value={imageFormat}
@@ -98,7 +106,7 @@ export function ExportBar() {
           </button>
         </>
       ) : (
-        <button className="btn btn--primary" onClick={handleExportVideo} disabled={busy}>
+        <button className="btn btn--primary" onClick={handleExportSequence} disabled={busy}>
           {busy ? `Exporting… ${Math.round(progress * 100)}%` : 'Export video (WebM)'}
         </button>
       )}
